@@ -37,6 +37,7 @@
 #ifndef INCLUDED_OSCPACK_OSCTYPES_H
 #define INCLUDED_OSCPACK_OSCTYPES_H
 
+#include <cstdint>
 
 namespace osc{
 
@@ -44,18 +45,18 @@ namespace osc{
 
 #if defined(__BORLANDC__) || defined(_MSC_VER)
 
-typedef __int64 int64;
-typedef unsigned __int64 uint64;
+typedef int64_t int64;
+typedef uint64_t uint64;
 
 #elif defined(__x86_64__) || defined(_M_X64)
 
-typedef long int64;
-typedef unsigned long uint64;
+typedef int64_t int64;
+typedef uint64_t uint64;
 
 #else
 
-typedef long long int64;
-typedef unsigned long long uint64;
+typedef int64_t int64;
+typedef uint64_t uint64;
 
 #endif
 
@@ -63,13 +64,13 @@ typedef unsigned long long uint64;
 
 #if defined(__x86_64__) || defined(_M_X64)
 
-typedef signed int int32;
-typedef unsigned int uint32;
+typedef int32_t int32;
+typedef uint32_t uint32;
 
 #else
 
-typedef signed long int32;
-typedef unsigned long uint32;
+typedef int32_t int32;
+typedef uint32_t uint32;
 
 #endif
 
