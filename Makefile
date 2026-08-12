@@ -31,6 +31,7 @@ RECEIVETEST := $(BINDIR)/OscReceiveTest
 SIMPLESEND := $(BINDIR)/SimpleSend
 SIMPLERECEIVE := $(BINDIR)/SimpleReceive
 DUMP := $(BINDIR)/OscDump
+ADDRESSPATTERNMATCH := $(BINDIR)/AddressPatternMatch
 
 INCLUDEDIR := oscpack
 LIBNAME := liboscpack
@@ -42,7 +43,7 @@ LIBFILENAME := $(LIBSONAME).1.1.0
 RECEIVESOURCES := osc/OscReceivedElements.cpp osc/OscPrintReceivedElements.cpp
 SENDSOURCES := osc/OscOutboundPacketStream.cpp
 NETSOURCES := ip/posix/UdpSocket.cpp ip/IpEndpointName.cpp ip/posix/NetworkingUtils.cpp
-COMMONSOURCES := osc/OscTypes.cpp
+COMMONSOURCES := osc/OscTypes.cpp osc/OscAddressPattern.cpp
 
 RECEIVEOBJECTS := $(RECEIVESOURCES:.cpp=.o)
 SENDOBJECTS := $(SENDSOURCES:.cpp=.o)
@@ -71,13 +72,16 @@ SIMPLERECEIVEOBJECTS := $(SIMPLERECEIVESOURCES:.cpp=.o)
 DUMPSOURCES := examples/OscDump.cpp
 DUMPOBJECTS := $(DUMPSOURCES:.cpp=.o)
 
+ADDRESSPATTERNMATCHSOURCES := examples/AddressPatternMatch.cpp
+ADDRESSPATTERNMATCHOBJECTS := $(ADDRESSPATTERNMATCHSOURCES:.cpp=.o)
+
 #Library objects
 
 LIBOBJECTS := $(COMMONOBJECTS) $(SENDOBJECTS) $(RECEIVEOBJECTS) $(NETOBJECTS)
 
-.PHONY: all unittests sendtests receivetest simplesend simplereceive dump library clean install install-local
+.PHONY: all unittests sendtests receivetest simplesend simplereceive dump addresspatternmatch library clean install install-local
 
-all: unittests sendtests receivetest simplesend simplereceive dump
+all: unittests sendtests receivetest simplesend simplereceive dump addresspatternmatch
 
 unittests : $(UNITTESTS)
 sendtests: $(SENDTESTS)
@@ -85,10 +89,11 @@ receivetest : $(RECEIVETEST)
 simplesend : $(SIMPLESEND)
 simplereceive : $(SIMPLERECEIVE)
 dump : $(DUMP)
+addresspatternmatch : $(ADDRESSPATTERNMATCH)
 
 # Build rule and common dependencies for all programs
 # | specifies an order-only dependency so changes to bin dir modified date don't trigger recompile
-$(UNITTESTS) $(SENDTESTS) $(RECEIVETEST) $(SIMPLESEND) $(SIMPLERECEIVE) $(DUMP) : $(COMMONOBJECTS) | $(BINDIR)
+$(UNITTESTS) $(SENDTESTS) $(RECEIVETEST) $(SIMPLESEND) $(SIMPLERECEIVE) $(DUMP) $(ADDRESSPATTERNMATCH) : $(COMMONOBJECTS) | $(BINDIR)
 	$(CXX) -o $@ $^
 
 # Additional dependencies for each program (make accumulates dependencies from multiple declarations)
@@ -98,12 +103,13 @@ $(RECEIVETEST) : $(RECEIVETESTOBJECTS) $(RECEIVEOBJECTS) $(NETOBJECTS)
 $(SIMPLESEND) : $(SIMPLESENDOBJECTS) $(SENDOBJECTS) $(NETOBJECTS)
 $(SIMPLERECEIVE) : $(SIMPLERECEIVEOBJECTS) $(RECEIVEOBJECTS) $(NETOBJECTS)
 $(DUMP) : $(DUMPOBJECTS) $(RECEIVEOBJECTS) $(NETOBJECTS)
+$(ADDRESSPATTERNMATCH) : $(ADDRESSPATTERNMATCHOBJECTS)
 
 $(BINDIR):
 	mkdir $@
 
 clean:
-	rm -rf $(BINDIR) $(UNITTESTOBJECTS) $(SENDTESTSOBJECTS) $(RECEIVETESTOBJECTS) $(DUMPOBJECTS) $(LIBOBJECTS) $(SIMPLESENDOBJECTS) $(SIMPLERECEIVEOBJECTS) $(LIBFILENAME) include lib oscpack &> /dev/null
+	rm -rf $(BINDIR) $(UNITTESTOBJECTS) $(SENDTESTSOBJECTS) $(RECEIVETESTOBJECTS) $(DUMPOBJECTS) $(LIBOBJECTS) $(SIMPLESENDOBJECTS) $(SIMPLERECEIVEOBJECTS) $(ADDRESSPATTERNMATCHOBJECTS) $(LIBFILENAME) include lib oscpack &> /dev/null
 
 $(LIBFILENAME): $(LIBOBJECTS)
 ifeq ($(UNAME), Darwin)

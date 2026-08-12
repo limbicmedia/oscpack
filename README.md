@@ -25,8 +25,10 @@ The networking classes are sufficient for writing many OSC applications and serv
 but you are encouraged to use another networking framework if it better suits your needs. 
 Oscpack is not an OSC application framework. It doesn't include infrastructure for 
 constructing or routing OSC namespaces, just classes for easily constructing, 
-sending, receiving and parsing OSC packets. The library should also be easy to use 
-for other transport methods (e.g. serial).
+sending, receiving and parsing OSC packets. This fork additionally provides 
+address pattern matching (see "Address pattern matching" below), but it still 
+leaves the namespace and dispatch structure entirely up to you. The library 
+should also be easy to use for other transport methods (e.g. serial).
 
 The key goals of the oscpack library are:
 
@@ -43,6 +45,7 @@ osc/OscReceivedElements -- classes for parsing a packet
 osc/OscPrintRecievedElements -- iostream << operators for printing packet elements
 osc/OscOutboundPacketStream -- a class for packing messages into a packet
 osc/OscPacketListener -- base class for listening to OSC packets on a UdpSocket
+osc/OscAddressPattern -- OSC 1.0 address pattern matching (see below)
 ip/IpEndpointName -- class that represents an IP address and port number
 ip/UdpSocket -- classes for UDP transmission and listening sockets
 tests/OscUnitTests -- unit test program for the OSC modules
@@ -57,6 +60,46 @@ ip/ contains the networking classes
 
 ip/windows contains the Windows implementation of the networking classes
 ip/posix contains the POSIX implementation of the networking classes
+
+
+Address pattern matching
+------------------------
+
+This fork adds osc/OscAddressPattern, which implements the OSC 1.0 address
+pattern grammar. Upstream oscpack leaves pattern matching to the application;
+these two functions provide it without imposing any namespace or dispatch
+structure, so you are still free to route messages however you like.
+
+bool osc::MatchAddressPattern( const char *pattern, const char *address );
+
+Matches a complete address pattern against a complete literal OSC address.
+Both are '/'-separated, both must be absolute, and the two must have the same
+number of segments. Returns false if either pointer is null.
+
+bool osc::MatchAddressPatternSegment( const char *patternBegin,
+        const char *patternEnd, const char *segmentBegin,
+        const char *segmentEnd );
+
+Matches a single pattern segment against a single address segment. Neither
+range may contain '/'. This is for callers that already split addresses into
+segments themselves, such as a router walking a tree of registered addresses
+one segment at a time.
+
+The supported grammar is:
+
+    *          matches zero or more characters
+    ?          matches exactly one character
+    [abc]      matches any one character in the list
+    [a-z]      matches any one character in the range, inclusive
+    [!a-z]     matches any one character not in the list or range
+    {foo,bar}  matches any one of the comma separated strings
+
+Wildcards are scoped to a single segment: neither '*' nor '?' will ever match
+a '/'. So "/live/*" matches "/live/1" but not "/live/1/brightness".
+
+A '-' at either end of a character list is a literal '-' rather than part of a
+range. A '[' or '{' with no matching close is malformed and never matches
+anything.
 
 
 Building
