@@ -337,7 +337,7 @@ class SocketReceiveMultiplexer::Implementation{
 	std::vector< std::pair< PacketListener*, UdpSocket* > > socketListeners_;
 	std::vector< AttachedTimerListener > timerListeners_;
 
-	volatile bool break_;
+	bool break_;
 	int breakPipe_[2]; // [0] is the reader descriptor and [1] the writer
 
 	double GetCurrentTimeMs() const
@@ -480,6 +480,7 @@ public:
                     // clear pending data from the asynchronous break pipe
                     char c;
                     read( breakPipe_[0], &c, 1 );
+                    break_ = true;
                 }
                 
                 if( break_ )
@@ -531,8 +532,6 @@ public:
 
     void AsynchronousBreak()
 	{
-		break_ = true;
-
 		// Send a termination message to the asynchronous break pipe, so select() will return
 		write( breakPipe_[1], "!", 1 );
 	}
