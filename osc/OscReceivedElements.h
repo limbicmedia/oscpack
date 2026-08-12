@@ -96,6 +96,10 @@ public:
         : contents_( contents )
         , size_( ValidateSize(size) ) {}
 
+    ReceivedPacket( const char *contents, std::size_t size )
+        : contents_( contents )
+        , size_( ValidateSize((osc_bundle_element_size_t)size) ) {}
+
     bool IsMessage() const { return !IsBundle(); }
     bool IsBundle() const;
 
