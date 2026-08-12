@@ -39,6 +39,8 @@ osc/OscPrintReceivedElements.h
 osc/OscPrintReceivedElements.cpp
 osc/OscOutboundPacketStream.h
 osc/OscOutboundPacketStream.cpp
+osc/OscAddressPattern.h
+osc/OscAddressPattern.cpp
 
 )
 
