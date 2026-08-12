@@ -42,7 +42,7 @@ LIBFILENAME := $(LIBSONAME).1.1.0
 RECEIVESOURCES := osc/OscReceivedElements.cpp osc/OscPrintReceivedElements.cpp
 SENDSOURCES := osc/OscOutboundPacketStream.cpp
 NETSOURCES := ip/posix/UdpSocket.cpp ip/IpEndpointName.cpp ip/posix/NetworkingUtils.cpp
-COMMONSOURCES := osc/OscTypes.cpp
+COMMONSOURCES := osc/OscTypes.cpp osc/OscAddressPattern.cpp
 
 RECEIVEOBJECTS := $(RECEIVESOURCES:.cpp=.o)
 SENDOBJECTS := $(SENDSOURCES:.cpp=.o)

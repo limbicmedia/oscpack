@@ -15,9 +15,8 @@ namespace osc{
 namespace{
 
 // Match a '[...]' character class beginning at p against the character c.
-// p is always advanced past the closing ']', whether or not the class matched,
-// so that a caller can probe with a throw-away pointer and still know where
-// the class ended.
+// On success p is advanced past the closing ']', so that a caller can probe
+// with a throw-away pointer and still learn where the class ended.
 bool MatchCharacterClass( const char *&p, const char *pEnd, char c )
 {
 	++p; // skip '['
@@ -31,8 +30,10 @@ bool MatchCharacterClass( const char *&p, const char *pEnd, char c )
 	bool matched = false;
 	while( p != pEnd && *p != ']' ){
 		// 'a-z' is a range, but a '-' immediately before the closing ']'
-		// (or at the end of the pattern) is a literal '-'.
-		if( (p + 2) < pEnd && *(p + 1) == '-' && *(p + 2) != ']' ){
+		// (or at the end of the pattern) is a literal '-'. The distances are
+		// compared rather than forming 'p + 2', which would be a pointer more
+		// than one past the end when p is the final character.
+		if( (pEnd - p) > 2 && *(p + 1) == '-' && *(p + 2) != ']' ){
 			if( *p <= c && c <= *(p + 2) )
 				matched = true;
 			p += 3;
@@ -43,8 +44,10 @@ bool MatchCharacterClass( const char *&p, const char *pEnd, char c )
 		}
 	}
 
-	if( p != pEnd ) // skip ']'
-		++p;
+	if( p == pEnd )
+		return false; // an unterminated '[' never matches
+
+	++p; // skip ']'
 
 	return matched != negated;
 }
@@ -159,6 +162,12 @@ bool MatchAddressPatternSegment( const char *patternBegin, const char *patternEn
 bool MatchAddressPattern( const char *pattern, const char *address )
 {
 	if( pattern == 0 || address == 0 )
+		return false;
+
+	// OSC addresses and patterns are absolute, so both have to begin with a
+	// '/'. Checking here also rejects the empty string, which the loop below
+	// would otherwise accept as matching another empty string.
+	if( *pattern != '/' || *address != '/' )
 		return false;
 
 	const char *p = pattern;
