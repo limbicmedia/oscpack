@@ -2,7 +2,8 @@
 	oscpack -- Open Sound Control (OSC) packet manipulation library
 	http://www.rossbencina.com/code/oscpack
 
-	OSC address pattern matching, per the OSC 1.0 specification.
+	OSC address pattern matching, per the OSC 1.0 specification:
+	https://opensoundcontrol.stanford.edu/spec-1_0.html
 
 	This file is an addition to the oscpack fork maintained by Limbic Media;
 	upstream oscpack has never shipped address pattern matching. It is made
